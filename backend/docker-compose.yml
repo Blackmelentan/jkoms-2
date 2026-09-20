@@ -1,0 +1,26 @@
+version: "3.9"
+
+# Local Postgres for offline development. This is the whole point of
+# owning our own backend now: `docker compose up -d` gets you a full
+# working database on your machine, no internet required, same schema
+# as production.
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: jkoms
+      POSTGRES_PASSWORD: jkoms_dev_password
+      POSTGRES_DB: jkoms_freight
+    ports:
+      - "5432:5432"
+    volumes:
+      - jkoms_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jkoms -d jkoms_freight"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  jkoms_pgdata:
